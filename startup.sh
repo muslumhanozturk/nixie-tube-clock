@@ -6,10 +6,10 @@
 #   Use with crontab: '@reboot /home/pi/nixie-clock/software/startup.sh'
 #
 
-GO_FILE='/home/pi/nixie-clock/software/go'
+# GO_FILE='/home/pi/nixie-clock/software/go'
 
 # Check if the 'go' file exists
-if [ -f $GO_FILE ]; then
+if [ -f /home/pi/nixie-clock/software/go ]; then
 
     # If 'GO' file exists, then auto-start the clock app.
     cd /home/pi/nixie-clock/software
