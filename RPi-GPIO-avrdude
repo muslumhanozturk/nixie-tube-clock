@@ -1,0 +1,98 @@
+============================================================================================
+ General notes
+============================================================================================
+
+The Raspberry Pi Zero W (RPi) is connected to the ATmega328P so that it can both program it in-circuit as well as communicate with it through SPI.
+Programming and SPI communication will use the same RPi GPIO lines of SPI0:
+
+Function    GPIO            RPi header  ATmega328P pin
+---------   -------------   ----------- ----------------
+Reset       GPIO8   CE0     24          1   (PC6/RESET)
+MISO        GPIO9   MISO    21          18  (PB4/MISO)
+MOSI        GPIO10  MOSI    19          17  (PB3/MOSI)
+CLK         GPIO11  SCLK    23          19  (PB5/SCK)
+CS          GPIO7   CE1     26          16  (PB2/SS)
+
+NOTE: Do not activate/load the native RPi SPI driver.
+AVRdude will bit-bang the ICP, RPi to AVR clock communication will be through the BCM2835 SPI library.
+
+============================================================================================
+ Manual GPIO8 toggle (reset line)
+============================================================================================
+
+#
+# using GPIO with RPi
+#
+
+import RPi.GPIO as gpio     # import library
+gpio.VERSION                # show version
+
+gpio.setmode(gpio.BOARD)    # setup references as RPI connector pin numbers
+gpio.setup(24,gpio.OUT)     # set pin-24 as output
+
+gpio.output(24,gpio.LOW)    # set pin to 'lo'
+gpio.output(24,gpio.HIGH)   # set pin to 'hi'
+
+gpio.cleanup()              # cleanup before exiting
+
+
+============================================================================================
+ AVRdude rel 6.2 for RPi GPIO
+============================================================================================
+
+1) get avrdude source for rel 6.2
+    http://download.savannah.gnu.org/releases/avrdude/avrdude-6.3.tar.gz
+2) unzip tar file
+    avrdude-6.3
+3) may need to install specific version of automake
+    sudo apt-get install automake1.10
+4) may need to install 'byacc' and 'flex' packages with apt-get install <pack>
+5) may need to patch release 6.3 according to this AVRdude bug report post-6.3 release !!
+   [https://lists.nongnu.org/archive/html/avrdude-dev/2016-03/msg00011.html]
+   snprintf() is being used in linuxgpio.c to convert unsigned GPIO numbers. A
+   recent commit has changed the format from "%d" to "%ud". "%u" is a valid
+   conversion specifier, while the trailing 'd' ends up being printed (e.g. '17d'
+   instead of '17'). This causes GPIO setup to fail:
+    Can't export GPIO 17, already exported/busy?: Invalid argument
+   Replace "%ud" with "%u".
+6) see INSTALL file for instructions on: ./configure, make, make install
+    use '--enable-linuxgpio=yes' with configure to enable linuxgpio sysfs support
+7) Enable SSH login without a password
+   [https://www.raspberrypi.org/documentation/remote-access/ssh/passwordless.md]
+
+
+============================================================================================
+ Create a configuration file avrdude.rpi.conf with the text below
+============================================================================================
+# This programmer bitbangs GPIO lines using the Linux sysfs GPIO interface
+#
+# To enable it set the configuration below to match the GPIO lines connected to the
+# relevant ISP header pins and uncomment the entry definition. In case you don't
+# have the required permissions to edit this system wide config file put the
+# entry in a separate <your name>.conf file and use it with -C+<your name>.conf
+# on the command line.
+#
+# To check if your avrdude build has support for the linuxgpio programmer compiled in,
+# use -c?type on the command line and look for linuxgpio in the list. If it's not available
+# you need pass the --enable-linuxgpio=yes option to configure and recompile avrdude.
+#
+# Use GPIO# for pin numbers and not connector pin numbers
+#
+programmer
+  id    = "linuxgpio";
+  desc  = "Use the Linux sysfs interface to bitbang GPIO lines";
+  type  = "linuxgpio";
+  reset = 8;
+  sck   = 11;
+  mosi  = 10;
+  miso  = 9;  
+;
+
+
+============================================================================================
+ Execute AVRDUDE
+============================================================================================
+Sample read flash into file:
+    sudo avrdude -pm328p -clinuxgpio -C+avrdude.rpi.conf -Uflash:r:<avr-prog-file>.hex:s
+
+

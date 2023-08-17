@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This XML file contains the Nixie-tube clock's
+     configuration parameters. The file time stamp is
+     checked periodically, and configuration is updated
+     if the file time has changed since the last check.
+     The file is parsed by configuration.py module and
+     the parameters are used by the clock.py module  -->
+<clock>
+    <!-- 24 or 12 hour format, variable: CFG_CLOCK_12HOUR -->
+    <time_format value="24" />
+    <!-- Effect list and run period in seconds -->
+    <effects>
+        <!-- Additional effects can be added
+             for slot machine use variable: CFG_SLOT_MACHINE -->
+        <slot_machine period="2" />
+    </effects>
+    <!-- Display date at top of hour, variable: CFG_SHOW_DATE -->
+    <display_date value="yes" />
+    <!-- Display off time range, in 24-hour format,
+         variables: CFG_DIPLAY_OFF and CFG_DIPLAY_ON.
+         start_time multi be earlier than end_time on the *same day* -->
+    <display_off start_time="00:00" end_time="08:00" />
+</clock>

@@ -1,0 +1,62 @@
+============================================================================================
+ General notes
+============================================================================================
+This document steps through the setup of the Python bindings for the bcm2825 GPIO library.
+bcm2835 C library [http://www.airspayce.com/mikem/bcm2835/]
+Python bindings [https://github.com/mubeta06/py-libbcm2835]
+
+============================================================================================
+ Installation steps
+============================================================================================
+
+1) Download or copy latest tar file 'bcm2835-1.57.tar.gz'
+2) Create the library for C code:
+        tar zxvf bcm2835-1.xx.tar.gz
+        cd bcm2835-1.xx
+        ./configure
+        make
+        sudo make check
+        sudo make install
+3) To create a *shared* library to use with Python bindings:
+        gcc -shared -o libbcm2835.so -fPIC bcm2835.c
+        copy library to /usr/local/lib
+4) Clone/download the bindings for GITHub
+   unzip
+   run 'sudo python setup.py install' in the base of the unzipped directory
+
+============================================================================================
+ Notes on Python binding support
+============================================================================================
+
+Latest bcm2835 library rev is 1.57 on 2018-08-28
+The Python bindings here [https://github.com/mubeta06/py-libbcm2835] seem to be behind
+and do not support all the latest functions.
+
+
+This list maps Python binding functions to the 1.57 library release.
+
+Python binding  Functions
+--------------- ----------------------------------------------------------------------------
+   no           uint16_t    bcm2835_version(void) 	
+   yes          int         bcm2835_spi_begin (void)
+   yes          void        bcm2835_spi_end (void)
+   yes          void        bcm2835_spi_setBitOrder (uint8_t order)
+   yes          void        bcm2835_spi_setClockDivider (uint16_t divider)
+   no           void        bcm2835_spi_set_speed_hz (uint32_t speed_hz)
+   yes          void        bcm2835_spi_setDataMode (uint8_t mode)
+   yes          void        bcm2835_spi_chipSelect (uint8_t cs)
+   yes          void        bcm2835_spi_setChipSelectPolarity (uint8_t cs, uint8_t active)
+   yes          uint8_t     bcm2835_spi_transfer (uint8_t value)
+   yes          void        bcm2835_spi_transfernb (char *tbuf, char *rbuf, uint32_t len)
+   yes          void        bcm2835_spi_transfern (char *buf, uint32_t len)
+   yes          void        bcm2835_spi_writenb (const char *buf, uint32_t len)
+   no           void        bcm2835_spi_write (uint16_t data)
+   no           int         bcm2835_aux_spi_begin (void)
+   no           void        bcm2835_aux_spi_end (void)
+   no           void        bcm2835_aux_spi_setClockDivider (uint16_t divider)
+   no           uint16_t    bcm2835_aux_spi_CalcClockDivider (uint32_t speed_hz)
+   no           void        bcm2835_aux_spi_write (uint16_t data)
+   no           void        bcm2835_aux_spi_writenb (const char *buf, uint32_t len)
+   no           void        bcm2835_aux_spi_transfern (char *buf, uint32_t len)
+   no           void        bcm2835_aux_spi_transfernb (const char *tbuf, char *rbuf, uint32_t len)
+ 
